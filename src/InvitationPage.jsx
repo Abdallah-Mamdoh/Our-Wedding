@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 const GOOGLE_FONTS =
-  "https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap";
+  "https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap";
 
 /* ── Hook: reveal on scroll ── */
 function useReveal() {
@@ -123,6 +123,132 @@ function Countdown() {
   );
 }
 
+/* ── Entrance Time Section ── */
+function EntranceTimeSection() {
+  const [ref, visible] = useReveal();
+
+  const schedule = [
+    { time: "07:00 PM", label: "Doors Open", icon: "✦", note: "Guests are welcomed & seated" },
+    { time: "08:00 PM", label: "Ceremony Begins", icon: "◆", note: "The celebration commences" },
+    { time: "09:00 PM", label: "Dinner & Celebration", icon: "✦", note: "Feast, music & memories" },
+  ];
+
+  return (
+    <div
+      ref={ref}
+      style={{
+        padding: "56px 32px",
+        textAlign: "center",
+        background: "#fff",
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(36px)",
+        transition: "opacity 0.85s ease, transform 0.85s ease",
+      }}
+    >
+      <span style={t.ornament}>✦</span>
+      <div style={t.msgTitle}>Evening Schedule</div>
+      <div style={t.secTitle}>Your guide to the night</div>
+
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0, marginTop: 18 }}>
+        {schedule.map((item, i) => (
+          <div key={item.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%" }}>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 20,
+              width: "100%",
+              maxWidth: 340,
+              padding: "20px 0",
+            }}>
+              {/* Time */}
+              <div style={{ textAlign: "right", minWidth: 90 }}>
+                <div style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: 20,
+                  color: "#c9a84c",
+                  fontWeight: 400,
+                  letterSpacing: 1,
+                }}>
+                  {item.time}
+                </div>
+              </div>
+
+              {/* Icon + vertical line */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", position: "relative" }}>
+                <div style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "50%",
+                  border: "1px solid rgba(201,168,76,0.5)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#c9a84c",
+                  fontSize: 10,
+                  flexShrink: 0,
+                  background: "#fffcf5",
+                }}>
+                  {item.icon}
+                </div>
+              </div>
+
+              {/* Label + note */}
+              <div style={{ textAlign: "left", flex: 1 }}>
+                <div style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: 16,
+                  color: "#2a1a06",
+                  fontWeight: 400,
+                }}>
+                  {item.label}
+                </div>
+                <div style={{
+                  fontSize: 12,
+                  color: "#8a7050",
+                  fontStyle: "italic",
+                  marginTop: 3,
+                  lineHeight: 1.4,
+                }}>
+                  {item.note}
+                </div>
+              </div>
+            </div>
+
+            {/* Connector line between items */}
+            {i < schedule.length - 1 && (
+              <div style={{
+                width: 0.5,
+                height: 24,
+                background: "rgba(201,168,76,0.3)",
+                marginLeft: "calc(90px + 20px + 18px)", // align with center of circle
+                alignSelf: "flex-start",
+                marginTop: -4,
+                marginBottom: -4,
+              }} />
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div style={{
+        marginTop: 28,
+        fontSize: 13,
+        color: "#8a7050",
+        fontStyle: "italic",
+        lineHeight: 1.8,
+        borderTop: "0.5px solid rgba(201,168,76,0.2)",
+        paddingTop: 20,
+      }}>
+        We kindly ask guests to arrive no later than<br />
+        <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 17, color: "#c9a84c", display: "block", marginTop: 4 }}>
+          7:30 PM
+        </span>
+        to be comfortably seated before the ceremony begins
+      </div>
+    </div>
+  );
+}
+
 /* ── Pink colour palette circles ── */
 const PINK_PALETTE = [
   { color: "#FDE4EC", name: "Baby Pink" },
@@ -174,77 +300,33 @@ function GardenBackground() {
   );
 }
 
-/* ── Playlist ── */
-const SONGS = [
-  { title: "A Thousand Years", artist: "Christina Perri", img: "https://picsum.photos/seed/song1/54/54", link: "https://www.anghami.com/song/1000-years-christina-perri" },
-  { title: "Can't Help Falling in Love", artist: "Elvis Presley", img: "https://picsum.photos/seed/song2/54/54", link: "https://www.anghami.com/song/cant-help-falling-in-love" },
-  { title: "Thinking Out Loud", artist: "Ed Sheeran", img: "https://picsum.photos/seed/song3/54/54", link: "https://www.anghami.com/song/thinking-out-loud-ed-sheeran" },
-  { title: "Leil Eid", artist: "Amr Diab", img: "https://picsum.photos/seed/song4/54/54", link: "https://www.anghami.com/song/leil-eid-amr-diab" },
-  { title: "Perfect", artist: "Ed Sheeran", img: "https://picsum.photos/seed/song5/54/54", link: "https://www.anghami.com/song/perfect-ed-sheeran" },
-];
+/* ── Monogram with uppercase A & S using Dancing Script ── */
+function Monogram({ size = 78, color = "#b8860b" }) {
+  const letterStyle = {
+    fontFamily: "'Dancing Script', cursive",
+    fontSize: size,
+    color,
+    lineHeight: 1,
+    display: "inline-block",
+    textTransform: "uppercase",
+    fontWeight: 700,
+  };
+  const ampStyle = {
+    fontFamily: "'Dancing Script', cursive",
+    fontSize: size * 0.55,
+    color,
+    lineHeight: 1,
+    display: "inline-block",
+    verticalAlign: "middle",
+    margin: "0 6px",
+    fontWeight: 500,
+  };
 
-function PlaylistSection() {
-  const [ref, visible] = useReveal();
   return (
-    <div
-      ref={ref}
-      style={{
-        padding: "56px 32px",
-        textAlign: "center",
-        background: "#fff",
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(36px)",
-        transition: "opacity 0.85s ease, transform 0.85s ease",
-      }}
-    >
-      <span style={t.ornament}>✦</span>
-      <div style={t.msgTitle}>Our Playlist</div>
-      <div style={t.secTitle}>The songs of our day</div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 8 }}>
-        {SONGS.map((song) => <SongCard key={song.title} song={song} />)}
-      </div>
-    </div>
-  );
-}
-
-function SongCard({ song }) {
-  const [hovered, setHovered] = useState(false);
-  const [btnHovered, setBtnHovered] = useState(false);
-  return (
-    <div
-      style={{
-        display: "flex", alignItems: "center", gap: 16,
-        border: "0.5px solid rgba(201,168,76,0.3)", borderRadius: 4,
-        padding: "14px 16px", textAlign: "left", transition: "box-shadow 0.3s",
-        boxShadow: hovered ? "0 6px 28px rgba(201,168,76,0.13)" : "none",
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      <div style={{ width: 54, height: 54, borderRadius: 4, overflow: "hidden", flexShrink: 0 }}>
-        <img src={song.img} alt={song.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-      </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 15, color: "#2a1a06", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-          {song.title}
-        </div>
-        <div style={{ fontSize: 12, color: "#8a7050", fontStyle: "italic", marginTop: 2 }}>{song.artist}</div>
-      </div>
-      <a
-        href={song.link} target="_blank" rel="noopener noreferrer"
-        style={{
-          width: 36, height: 36, borderRadius: "50%", border: "1px solid #c9a84c",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          flexShrink: 0, textDecoration: "none", transition: "transform 0.2s",
-          transform: btnHovered ? "scale(1.1)" : "scale(1)",
-        }}
-        onMouseEnter={() => setBtnHovered(true)}
-        onMouseLeave={() => setBtnHovered(false)}
-      >
-        <svg width="12" height="14" viewBox="0 0 12 14" fill="none">
-          <path d="M1 1l10 6L1 13V1z" fill="#c9a84c" />
-        </svg>
-      </a>
+    <div style={{ lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 0, textShadow: "1px 2px 0 rgba(180,120,0,0.15)" }}>
+      <span style={letterStyle}>A</span>
+      <span style={ampStyle}>&amp;</span>
+      <span style={letterStyle}>S</span>
     </div>
   );
 }
@@ -278,7 +360,10 @@ export default function InvitationPage() {
             <GardenBackground />
             <div style={{ position: "absolute", inset: 0, background: "rgba(255,252,245,0.62)", zIndex: 1 }} />
             <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", alignItems: "center", width: "100%" }}>
-              <div style={s.monogram}>A &amp; S</div>
+              {/* Uppercase A & S monogram */}
+              <div style={{ marginBottom: 4 }}>
+                <Monogram size={78} color="#b8860b" />
+              </div>
               <div style={s.monoLine} />
               <div style={s.heroNames}>
                 Abdallah
@@ -290,7 +375,7 @@ export default function InvitationPage() {
             </div>
           </div>
 
-          {/* ── DATE + COUNTDOWN ── */}
+          {/* ── 1. DATE + COUNTDOWN — most important, sets the event ── */}
           <Section>
             <span style={t.ornament}>✦ &nbsp; ✦ &nbsp; ✦</span>
             <div style={t.dateDay}>Wednesday</div>
@@ -303,12 +388,12 @@ export default function InvitationPage() {
 
           <Divider />
 
-          {/* ── PINK PALETTE ── */}
-          <PinkPalette />
+          {/* ── 2. ENTRANCE TIME — practical info right after the date ── */}
+          <EntranceTimeSection />
 
           <Divider />
 
-          {/* ── VENUE + MAP ── */}
+          {/* ── 3. VENUE + MAP — where to go ── */}
           <Section>
             <span style={t.ornament}>✦</span>
             <div style={t.secTitle}>The celebration will be held at</div>
@@ -329,7 +414,7 @@ export default function InvitationPage() {
 
           <Divider />
 
-          {/* ── RSVP ── */}
+          {/* ── 4. RSVP — action item ── */}
           <Section>
             <span style={t.ornament}>✦</span>
             <div style={t.rsvpTitle}>Will you join us?</div>
@@ -348,12 +433,12 @@ export default function InvitationPage() {
 
           <Divider />
 
-          {/* ── PLAYLIST ── */}
-          <PlaylistSection />
+          {/* ── 5. PINK PALETTE — dress code / aesthetic ── */}
+          <PinkPalette />
 
           <Divider />
 
-          {/* ── MESSAGE ── */}
+          {/* ── 6. MESSAGE — emotional close ── */}
           <Section>
             <span style={t.ornament}>✦</span>
             <div style={t.msgTitle}>A note from our hearts</div>
@@ -380,8 +465,8 @@ export default function InvitationPage() {
               transition: "opacity 0.85s ease, transform 0.85s ease",
             }}
           >
-            <div style={s.monogram}>A &amp; S</div>
-            <div style={{ fontSize: 11, letterSpacing: 4, color: "#c9a84c", opacity: 0.55, textTransform: "uppercase", marginTop: 4 }}>
+            <Monogram size={72} color="#b8860b" />
+            <div style={{ fontSize: 11, letterSpacing: 4, color: "#c9a84c", opacity: 0.55, textTransform: "uppercase", marginTop: 8 }}>
               10 · 06 · 2026
             </div>
           </div>
@@ -406,14 +491,6 @@ const s = {
     overflow: "hidden",
     background: "#fdf8ef",
   },
-  monogram: {
-    fontFamily: "'Great Vibes', cursive",
-    fontSize: 78,
-    color: "#b8860b",
-    lineHeight: 1,
-    textShadow: "1px 2px 0 rgba(180,120,0,0.15)",
-    marginBottom: 4,
-  },
   monoLine: {
     width: 70,
     height: 0.5,
@@ -422,14 +499,14 @@ const s = {
     margin: "6px auto 28px",
   },
   heroNames: {
-    fontFamily: "'Great Vibes', cursive",
+    fontFamily: "'Dancing Script', cursive",
     fontSize: 50,
     color: "#2a1a06",
     lineHeight: 1.2,
     textAlign: "center",
   },
   heroAmp: {
-    fontFamily: "'Great Vibes', cursive",
+    fontFamily: "'Dancing Script', cursive",
     fontSize: 34,
     color: "#b8860b",
     display: "block",
@@ -455,20 +532,20 @@ const s = {
 const t = {
   ornament: { color: "#c9a84c", fontSize: 13, letterSpacing: 6, marginBottom: 18, display: "block" },
   secTitle: { fontFamily: "'Playfair Display', serif", fontSize: 12, letterSpacing: 6, color: "#8a7050", textTransform: "uppercase", marginBottom: 22, fontWeight: 400, fontStyle: "italic" },
-  dateDay: { fontFamily: "'Great Vibes', cursive", fontSize: 30, color: "#8a7050", marginBottom: 2 },
+  dateDay: { fontFamily: "'Dancing Script', cursive", fontSize: 30, color: "#8a7050", marginBottom: 2 },
   dateNum: { fontFamily: "'Playfair Display', serif", fontSize: 84, color: "#c9a84c", lineHeight: 1, fontWeight: 400 },
   dateMonth: { fontFamily: "'Playfair Display', serif", fontSize: 22, color: "#2a1a06", letterSpacing: 8, textTransform: "uppercase", marginBottom: 4 },
   dateYear: { fontSize: 14, letterSpacing: 4, color: "#8a7050", fontStyle: "italic" },
   dateNote: { marginTop: 18, fontSize: 15, color: "#8a7050", fontStyle: "italic", lineHeight: 1.9 },
-  venueName: { fontFamily: "'Great Vibes', cursive", fontSize: 38, color: "#2a1a06", marginBottom: 6 },
+  venueName: { fontFamily: "'Dancing Script', cursive", fontSize: 38, color: "#2a1a06", marginBottom: 6 },
   venueAddr: { fontSize: 13, letterSpacing: 2, color: "#8a7050", textTransform: "uppercase", marginBottom: 18, fontStyle: "italic" },
   mapFrame: { width: "100%", height: 230, border: "0.5px solid rgba(201,168,76,0.4)", borderRadius: 2, overflow: "hidden", marginTop: 10 },
   dirLink: { display: "inline-block", marginTop: 13, fontSize: 12, letterSpacing: 3, color: "#c9a84c", textTransform: "uppercase", textDecoration: "none", borderBottom: "0.5px solid rgba(201,168,76,0.4)", paddingBottom: 2 },
-  rsvpTitle: { fontFamily: "'Great Vibes', cursive", fontSize: 38, color: "#2a1a06", marginBottom: 8 },
+  rsvpTitle: { fontFamily: "'Dancing Script', cursive", fontSize: 38, color: "#2a1a06", marginBottom: 8 },
   rsvpSub: { fontSize: 14, color: "#8a7050", fontStyle: "italic", marginBottom: 22 },
   rsvpBtn: { display: "inline-flex", alignItems: "center", gap: 8, padding: "13px 30px", border: "1px solid #c9a84c", color: "#2a1a06", fontFamily: "'Cormorant Garamond', serif", fontSize: 14, letterSpacing: 2, cursor: "pointer", background: "transparent", borderRadius: 1, transition: "background 0.3s", textDecoration: "none", fontStyle: "italic" },
-  msgTitle: { fontFamily: "'Great Vibes', cursive", fontSize: 42, color: "#2a1a06", marginBottom: 22 },
+  msgTitle: { fontFamily: "'Dancing Script', cursive", fontSize: 42, color: "#2a1a06", marginBottom: 22 },
   msgBody: { fontSize: 16, lineHeight: 2, color: "#5a4030", fontStyle: "italic", textAlign: "center" },
-  msgSig: { marginTop: 30, fontFamily: "'Great Vibes', cursive", fontSize: 40, color: "#c9a84c", lineHeight: 1.3 },
+  msgSig: { marginTop: 30, fontFamily: "'Dancing Script', cursive", fontSize: 40, color: "#c9a84c", lineHeight: 1.3 },
   msgSigSub: { fontSize: 11, letterSpacing: 3, color: "#8a7050", textTransform: "uppercase", marginTop: 6, fontStyle: "italic" },
 };
