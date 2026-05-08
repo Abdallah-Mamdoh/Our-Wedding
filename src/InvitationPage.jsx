@@ -177,19 +177,19 @@ function EntranceTimeSection() {
 
   const schedule = [
     {
-      time: "07:00 PM",
+      time: "07:30 PM",
       label: "Doors Open",
       icon: "✦",
       note: "Guests are welcomed & seated",
     },
     {
-      time: "08:00 PM",
+      time: "09:00 PM",
       label: "Ceremony Begins",
       icon: "◆",
       note: "The celebration commences",
     },
     {
-      time: "09:00 PM",
+      time: "10:00 PM",
       label: "Dinner & Celebration",
       icon: "✦",
       note: "Feast, music & memories",
@@ -350,7 +350,7 @@ function EntranceTimeSection() {
             marginTop: 4,
           }}
         >
-          7:30 PM
+          8:30 PM
         </span>
         to be comfortably seated before the ceremony begins
       </div>
