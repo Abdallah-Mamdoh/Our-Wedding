@@ -79,7 +79,7 @@ function Divider() {
 function Countdown() {
   const [time, setTime] = useState({ d: "--", h: "--", m: "--", s: "--" });
   useEffect(() => {
-    const target = new Date("2026-06-10T20:00:00");
+    const target = new Date("2026-06-10T21:00:00");
     const pad = (n) => String(Math.floor(n)).padStart(2, "0");
     const tick = () => {
       const diff = target - new Date();
@@ -175,9 +175,30 @@ function Countdown() {
 function EntranceTimeSection() {
   const [ref, visible] = useReveal();
 
+  // const schedule = [
+  //   {
+  //     time: "08:00 PM",
+  //     label: "Doors Open",
+  //     icon: "✦",
+  //     note: "Guests are welcomed & seated",
+  //   },
+  //   {
+  //     time: "09:00 PM",
+  //     label: "Ceremony Begins",
+  //     icon: "◆",
+  //     note: "The celebration commences",
+  //   },
+  //   {
+  //     time: "10:00 PM",
+  //     label: "Dinner & Celebration",
+  //     icon: "✦",
+  //     note: "Feast, music & memories",
+  //   },
+  // ];
+
   const schedule = [
     {
-      time: "07:30 PM",
+      time: "08:00 PM",
       label: "Doors Open",
       icon: "✦",
       note: "Guests are welcomed & seated",
@@ -189,10 +210,28 @@ function EntranceTimeSection() {
       note: "The celebration commences",
     },
     {
-      time: "10:00 PM",
-      label: "Dinner & Celebration",
+      time: "09:30 PM",
+      label: "Ring Exchange",
+      icon: "✦",
+      note: "Exchanging our rings ",
+    },
+    {
+      time: "10:15 PM",
+      label: "Dinner Time",
       icon: "✦",
       note: "Feast, music & memories",
+    },
+    {
+      time: "10:30 PM",
+      label: "A Letter for Our Future",
+      icon: "◆",
+      note: "A heartfelt message for the future",
+    },
+    {
+      time: "All Night",
+      label: "Photo Moments",
+      icon: "✦",
+      note: "Photographer, Photobooth and Guestbook are available throughout the evening",
     },
   ];
 
@@ -210,7 +249,7 @@ function EntranceTimeSection() {
     >
       <span style={t.ornament}>✦</span>
       <div style={t.msgTitle}>Evening Schedule</div>
-      <div style={t.secTitle}>Your guide to the night</div>
+      <div style={t.secTitle}>Your guide to our night</div>
 
       <div
         style={{
