@@ -260,6 +260,7 @@ function Intro({ open, onOpen }) {
           onClick={handleOpen}
           style={{
             marginTop: 22,
+            marginBottom: 15,
             padding: "13px 30px",
             borderRadius: 40,
             border: "none",
