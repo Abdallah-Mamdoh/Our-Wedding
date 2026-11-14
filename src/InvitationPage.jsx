@@ -176,7 +176,7 @@ function Intro({ open, onOpen }) {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "150px 20px 0",
+        padding: "100px 20px 0",
         textAlign: "center",
         color: C.pearl,
         background: `linear-gradient(180deg, ${C.night} 0%, #3b2a55 55%, #a8506f 100%)`,
