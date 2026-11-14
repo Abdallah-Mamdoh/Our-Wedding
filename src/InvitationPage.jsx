@@ -1,992 +1,409 @@
 import { useEffect, useRef, useState } from "react";
 
-const GOOGLE_FONTS =
-  "https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap";
+const FONTS =
+  "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,300;1,9..144,500&family=Aref+Ruqaa:wght@400;700&family=Figtree:wght@400;500;600&display=swap";
 
-/* ── Hook: reveal on scroll ── */
+/* ── Event config (edit here) ── */
+const SAIL_TIME = new Date("2026-12-25T20:30:00+02:00"); // Cairo time
+const MAPS_LINK =
+  "https://www.google.com/maps/search/?api=1&query=Liberty+The+Nile+Anchor+Cairo";
+const WHATSAPP_LINK = "https://chat.whatsapp.com/He9otTZwvwkJzBne54H6xc";
+const SCHEDULE = [
+  { time: "8:00 PM", label: "Boarding begins", note: "Welcome drinks on the dock" },
+  { time: "8:30 PM", label: "Liberty sets sail", note: "On time, and she will not wait", key: true },
+  { time: "9:00 PM", label: "Zaffa & first dance", note: "Our first moments as husband and wife" },
+  { time: "10:00 PM", label: "Dinner on the water", note: "Feast, music & memories" },
+  { time: "11:30 PM", label: "Back at the dock", note: "Photos, photobooth & guestbook" },
+];
+
+const C = {
+  night: "#0c1b33",
+  deep: "#12304d",
+  teal: "#1f6f78",
+  amber: "#ffb454",
+  pearl: "#f6efe4",
+  coral: "#ec7f8f",
+};
+const serif = "'Fraunces', serif";
+const sans = "'Figtree', sans-serif";
+const arabic = "'Aref Ruqaa', serif";
+
+/* ── Hooks ── */
 function useReveal() {
   const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
+  const [on, setOn] = useState(false);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setVisible(true);
-      },
-      { threshold: 0.1 },
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
+    const o = new IntersectionObserver(([e]) => e.isIntersecting && setOn(true), { threshold: 0.12 });
+    o.observe(el);
+    return () => o.disconnect();
   }, []);
-  return [ref, visible];
+  return [ref, on];
 }
-
-/* ── Section wrapper with scroll reveal ── */
-function Section({ children, style = {} }) {
-  const [ref, visible] = useReveal();
-  return (
-    <div
-      ref={ref}
-      style={{
-        padding: "56px 32px",
-        textAlign: "center",
-        background: "#fff",
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(36px)",
-        transition: "opacity 0.85s ease, transform 0.85s ease",
-        ...style,
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-/* ── Gold ornament divider ── */
-function Divider() {
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 12,
-        padding: "0 32px",
-        background: "#fff",
-      }}
-    >
-      <div
-        style={{ flex: 1, height: 0.5, background: "rgba(201,168,76,0.28)" }}
-      />
-      <div
-        style={{
-          width: 6,
-          height: 6,
-          background: "#c9a84c",
-          transform: "rotate(45deg)",
-          opacity: 0.55,
-          flexShrink: 0,
-        }}
-      />
-      <div
-        style={{ flex: 1, height: 0.5, background: "rgba(201,168,76,0.28)" }}
-      />
-    </div>
-  );
-}
-
-/* ── Live countdown ── */
-function Countdown() {
-  const [time, setTime] = useState({ d: "--", h: "--", m: "--", s: "--" });
+function useTimeLeft() {
+  const [d, setD] = useState(() => SAIL_TIME - new Date());
   useEffect(() => {
-    const target = new Date("2026-06-10T21:00:00");
-    const pad = (n) => String(Math.floor(n)).padStart(2, "0");
-    const tick = () => {
-      const diff = target - new Date();
-      if (diff <= 0) {
-        setTime({ d: "00", h: "00", m: "00", s: "00" });
-        return;
-      }
-      setTime({
-        d: pad(diff / 86400000),
-        h: pad((diff % 86400000) / 3600000),
-        m: pad((diff % 3600000) / 60000),
-        s: pad((diff % 60000) / 1000),
-      });
-    };
-    tick();
-    const id = setInterval(tick, 1000);
+    const id = setInterval(() => setD(SAIL_TIME - new Date()), 1000);
     return () => clearInterval(id);
   }, []);
+  return d;
+}
 
-  const blocks = [
-    { val: time.d, label: "Days" },
-    { val: time.h, label: "Hours" },
-    { val: time.m, label: "Minutes" },
-    { val: time.s, label: "Seconds" },
-  ];
+/* ── Layout helpers ── */
+function Block({ bg, color, children, pad = "52px 26px" }) {
+  const [ref, on] = useReveal();
+  return (
+    <section ref={ref} style={{ background: bg, color, padding: pad, textAlign: "center", opacity: on ? 1 : 0, transition: "opacity 1s ease" }}>
+      {children}
+    </section>
+  );
+}
+function Wave({ from, to }) {
+  return (
+    <div style={{ background: from, lineHeight: 0 }}>
+      <svg viewBox="0 0 520 36" preserveAspectRatio="none" style={{ width: "100%", height: 36, display: "block" }}>
+        <path d="M0 18 Q32 0 65 18 T130 18 T195 18 T260 18 T325 18 T390 18 T455 18 T520 18 V36 H0Z" fill={to} />
+      </svg>
+    </div>
+  );
+}
 
+/* ── Illustrated couple ── */
+function Couple() {
+  const skin = "#e8b896";
+  return (
+    <svg viewBox="0 0 240 250" style={{ width: 230, display: "block" }} aria-label="Illustration of the groom and bride holding hands">
+      <g className="sway">
+        {/* groom */}
+        <rect x="38" y="168" width="20" height="58" rx="4" fill="#1a2b4a" />
+        <rect x="62" y="168" width="20" height="58" rx="4" fill="#1a2b4a" />
+        <rect x="34" y="222" width="26" height="8" rx="4" fill="#0a1220" />
+        <rect x="60" y="222" width="26" height="8" rx="4" fill="#0a1220" />
+        <path d="M28 74 Q60 58 92 74 L98 174 H22Z" fill="#26406a" />
+        <path d="M52 64 L60 104 L68 64Z" fill={C.pearl} />
+        <path d="M52 66 L60 70 L52 74Z M68 66 L60 70 L68 74Z" fill={C.coral} />
+        <rect x="55" y="52" width="10" height="12" fill={skin} />
+        <circle cx="60" cy="40" r="18" fill={skin} />
+        <path d="M42 38 Q42 16 60 16 Q78 16 78 38 Q70 27 60 27 Q50 27 42 38Z" fill="#2b1a12" />
+        <path d="M92 80 Q108 120 118 150" stroke="#26406a" strokeWidth="10" strokeLinecap="round" fill="none" />
+        {/* bride */}
+        <path d="M160 40 Q148 150 156 218 L204 218 Q212 150 200 40Z" fill="#fff" opacity="0.22" />
+        <path d="M166 106 H194 L226 230 H134Z" fill={C.pearl} />
+        <path d="M162 74 Q180 64 198 74 L194 112 H166Z" fill="#fffaf1" />
+        <rect x="175" y="54" width="10" height="12" fill={skin} />
+        <circle cx="180" cy="42" r="17" fill={skin} />
+        <path d="M163 40 Q163 20 180 20 Q197 20 197 40 Q190 30 180 30 Q170 30 163 40Z" fill="#3a2418" />
+        <circle cx="180" cy="19" r="8" fill="#3a2418" />
+        <path d="M166 84 Q142 120 122 150" stroke={skin} strokeWidth="7" strokeLinecap="round" fill="none" />
+        <circle cx="121" cy="150" r="6" fill={skin} />
+        <circle cx="196" cy="132" r="6" fill={C.coral} /><circle cx="203" cy="138" r="5" fill="#f4a3b0" /><circle cx="192" cy="140" r="5" fill="#f4a3b0" />
+      </g>
+    </svg>
+  );
+}
+
+/* ── Opening scene ── */
+function Intro({ open, onOpen }) {
+  const lanterns = [8, 22, 38, 56, 72, 88];
   return (
     <div
+      aria-hidden={open}
       style={{
-        display: "flex",
-        gap: 10,
-        justifyContent: "center",
-        flexWrap: "wrap",
-        marginTop: 26,
+        position: "fixed", inset: 0, zIndex: 100, display: "flex", flexDirection: "column", alignItems: "center",
+        justifyContent: "space-between", padding: "46px 20px 0", textAlign: "center", color: C.pearl,
+        background: `linear-gradient(180deg, ${C.night} 0%, #3b2a55 55%, #a8506f 100%)`,
+        transform: open ? "translateY(-105%)" : "none", transition: "transform 1.4s cubic-bezier(.7,0,.2,1)",
+        visibility: open ? "hidden" : "visible", transitionProperty: "transform, visibility", overflow: "hidden",marginTop: "150px"
       }}
     >
-      {blocks.map((b, i) => (
-        <div
-          key={b.label}
-          style={{ display: "flex", alignItems: "center", gap: 10 }}
-        >
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              minWidth: 60,
-            }}
-          >
-            <div
-              style={{
-                fontFamily: "'Playfair Display', serif",
-                fontSize: 40,
-                color: "#2a1a06",
-                fontWeight: 400,
-                lineHeight: 1,
-              }}
-            >
-              {b.val}
-            </div>
-            <div
-              style={{
-                fontSize: 10,
-                letterSpacing: 3,
-                color: "#8a7050",
-                textTransform: "uppercase",
-                marginTop: 4,
-                fontFamily: "'Cormorant Garamond', serif",
-              }}
-            >
-              {b.label}
-            </div>
-          </div>
-          {i < blocks.length - 1 && (
-            <div
-              style={{
-                fontFamily: "'Playfair Display', serif",
-                fontSize: 30,
-                color: "#c9a84c",
-                paddingTop: 4,
-              }}
-            >
-              ·
-            </div>
-          )}
+      {[[12, 10], [30, 22], [64, 8], [82, 18], [48, 30], [92, 34], [20, 40]].map(([l, t], i) => (
+        <span key={i} className="star" style={{ position: "absolute", left: `${l}%`, top: `${t}%`, animationDelay: `${i * 0.4}s` }} />
+      ))}
+      {lanterns.map((l, i) => (
+        <span key={i} className="lantern" style={{ left: `${l}%`, animationDelay: `${i * 1.3}s`, animationDuration: `${9 + (i % 3) * 2}s` }} />
+      ))}
+      <div style={{ position: "relative" }}>
+        <div style={{ fontFamily: sans, fontSize: 13, letterSpacing: 1, opacity: 0.8 }}>You are invited to the wedding of</div>
+        <div style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 300, fontSize: 46, lineHeight: 1.1, marginTop: 12 }}>
+          Abdallah <span style={{ color: C.coral }}>&amp;</span> Sohaila
+        </div>
+        <div style={{ fontFamily: arabic, fontSize: 26, color: C.amber, marginTop: 6 }}></div>
+        <button className="cta" onClick={onOpen} style={{
+          marginTop: 22, padding: "13px 30px", borderRadius: 40, border: "none", background: C.amber, color: C.night,
+          fontFamily: sans, fontWeight: 600, fontSize: 15, cursor: "pointer",
+        }}>
+          Step aboard
+        </button>
+      </div>
+      <div style={{ position: "relative", width: "100%", display: "flex", justifyContent: "center" }}>
+        <Couple />
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 22, background: "#0a1220" }} />
+      </div>
+    </div>
+  );
+}
+
+/* ── Porthole countdown ── */
+function Portholes({ diff }) {
+  const d = Math.max(0, diff);
+  const pad = (n) => String(Math.floor(n)).padStart(2, "0");
+  const items = [
+    [pad(d / 86400000), "days"], [pad((d % 86400000) / 3600000), "hours"],
+    [pad((d % 3600000) / 60000), "min"], [pad((d % 60000) / 1000), "sec"],
+  ];
+  return (
+    <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap", marginTop: 26 }}>
+      {items.map(([v, l]) => (
+        <div key={l} style={{
+          width: 70, height: 70, borderRadius: "50%", border: `3px solid ${C.amber}`, background: C.deep,
+          boxShadow: "inset 0 0 14px rgba(0,0,0,0.6), 0 0 0 4px rgba(255,180,84,0.15)",
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+        }}>
+          <div style={{ fontFamily: serif, fontSize: 26, lineHeight: 1, color: C.pearl }}>{v}</div>
+          <div style={{ fontFamily: sans, fontSize: 10, color: C.amber, marginTop: 3 }}>{l}</div>
         </div>
       ))}
     </div>
   );
 }
 
-/* ── Entrance Time Section ── */
-function EntranceTimeSection() {
-  const [ref, visible] = useReveal();
-
-  // const schedule = [
-  //   {
-  //     time: "08:00 PM",
-  //     label: "Doors Open",
-  //     icon: "✦",
-  //     note: "Guests are welcomed & seated",
-  //   },
-  //   {
-  //     time: "09:00 PM",
-  //     label: "Ceremony Begins",
-  //     icon: "◆",
-  //     note: "The celebration commences",
-  //   },
-  //   {
-  //     time: "10:00 PM",
-  //     label: "Dinner & Celebration",
-  //     icon: "✦",
-  //     note: "Feast, music & memories",
-  //   },
-  // ];
-
-  const schedule = [
-    {
-      time: "08:00 PM",
-      label: "Doors Open",
-      icon: "✦",
-      note: "Guests are welcomed & seated",
-    },
-    {
-      time: "09:00 PM",
-      label: "Ceremony Begins",
-      icon: "◆",
-      note: "The celebration commences",
-    },
-    {
-      time: "09:30 PM",
-      label: "Ring Exchange",
-      icon: "✦",
-      note: "Exchanging our rings ",
-    },
-    {
-      time: "10:15 PM",
-      label: "Dinner Time",
-      icon: "✦",
-      note: "Feast, music & memories",
-    },
-    {
-      time: "10:30 PM",
-      label: "A Letter for Our Future",
-      icon: "◆",
-      note: "A heartfelt message for the future",
-    },
-    {
-      time: "All Night",
-      label: "Photo Moments",
-      icon: "✦",
-      note: "Photographer, Photobooth and Guestbook are available throughout the evening",
-    },
-  ];
-
-  return (
-    <div
-      ref={ref}
-      style={{
-        padding: "56px 32px",
-        textAlign: "center",
-        background: "#fff",
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(36px)",
-        transition: "opacity 0.85s ease, transform 0.85s ease",
-      }}
-    >
-      <span style={t.ornament}>✦</span>
-      <div style={t.msgTitle}>Evening Schedule</div>
-      <div style={t.secTitle}>Your guide to our night</div>
-
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 0,
-          marginTop: 18,
-        }}
-      >
-        {schedule.map((item, i) => (
-          <div
-            key={item.label}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              width: "100%",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 20,
-                width: "100%",
-                maxWidth: 340,
-                padding: "20px 0",
-              }}
-            >
-              {/* Time */}
-              <div style={{ textAlign: "right", minWidth: 90 }}>
-                <div
-                  style={{
-                    fontFamily: "'Playfair Display', serif",
-                    fontSize: 20,
-                    color: "#c9a84c",
-                    fontWeight: 400,
-                    letterSpacing: 1,
-                  }}
-                >
-                  {item.time}
-                </div>
-              </div>
-
-              {/* Icon + vertical line */}
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  position: "relative",
-                }}
-              >
-                <div
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: "50%",
-                    border: "1px solid rgba(201,168,76,0.5)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#c9a84c",
-                    fontSize: 10,
-                    flexShrink: 0,
-                    background: "#fffcf5",
-                  }}
-                >
-                  {item.icon}
-                </div>
-              </div>
-
-              {/* Label + note */}
-              <div style={{ textAlign: "left", flex: 1 }}>
-                <div
-                  style={{
-                    fontFamily: "'Playfair Display', serif",
-                    fontSize: 16,
-                    color: "#2a1a06",
-                    fontWeight: 400,
-                  }}
-                >
-                  {item.label}
-                </div>
-                <div
-                  style={{
-                    fontSize: 12,
-                    color: "#8a7050",
-                    fontStyle: "italic",
-                    marginTop: 3,
-                    lineHeight: 1.4,
-                  }}
-                >
-                  {item.note}
-                </div>
-              </div>
-            </div>
-
-            {/* Connector line between items */}
-            {i < schedule.length - 1 && (
-              <div
-                style={{
-                  width: 0.5,
-                  height: 24,
-                  background: "rgba(201,168,76,0.3)",
-                  marginLeft: "calc(90px + 20px + 18px)", // align with center of circle
-                  alignSelf: "flex-start",
-                  marginTop: -4,
-                  marginBottom: -4,
-                }}
-              />
-            )}
-          </div>
-        ))}
-      </div>
-
-      <div
-        style={{
-          marginTop: 28,
-          fontSize: 13,
-          color: "#8a7050",
-          fontStyle: "italic",
-          lineHeight: 1.8,
-          borderTop: "0.5px solid rgba(201,168,76,0.2)",
-          paddingTop: 20,
-        }}
-      >
-        We kindly ask guests to arrive no later than
-        <br />
-        <span
-          style={{
-            fontFamily: "'Playfair Display', serif",
-            fontSize: 17,
-            color: "#c9a84c",
-            display: "block",
-            marginTop: 4,
-          }}
-        >
-          8:30 PM
-        </span>
-        to be comfortably seated before the ceremony begins
-      </div>
-    </div>
-  );
-}
-
-/* ── Pink colour palette circles ── */
-const PINK_PALETTE = [
-  { color: "#DB9AAD", name: "Petal Cloud" },
-  { color: "#D6879F", name: "Blush Nectar" },
-  { color: "#C0567B", name: "Rosy Dusk" },
-  { color: "#892245", name: "Crimson Velvet" },
-];
-
-function PinkPalette() {
-  const [ref, visible] = useReveal();
-  return (
-    <div
-      ref={ref}
-      style={{
-        padding: "40px 32px 56px",
-        textAlign: "center",
-        background: "#fff",
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(36px)",
-        transition: "opacity 0.85s ease, transform 0.85s ease",
-      }}
-    >
-      <span style={t.ornament}>✦</span>
-      <div
-        style={{
-          fontFamily: "'Playfair Display', serif",
-          fontSize: 12,
-          letterSpacing: 6,
-          color: "#8a7050",
-          textTransform: "uppercase",
-          marginBottom: 28,
-          fontStyle: "italic",
-        }}
-      >
-        Girls Colour Palette
-      </div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          gap: 16,
-          flexWrap: "wrap",
-        }}
-      >
-        {PINK_PALETTE.map((p) => (
-          <div
-            key={p.name}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 10,
-            }}
-          >
-            <div
-              style={{
-                width: 62,
-                height: 62,
-                borderRadius: "50%",
-                background: p.color,
-                border: "1px solid rgba(201,168,76,0.25)",
-                boxShadow: `0 2px 12px ${p.color}55`,
-              }}
-            />
-            <div
-              style={{
-                fontSize: 11,
-                letterSpacing: 1.5,
-                color: "#8a7050",
-                fontFamily: "'Cormorant Garamond', serif",
-                fontStyle: "italic",
-              }}
-            >
-              {p.name}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* ── Garden background ── */
-function GardenBackground() {
-  return (
-    <div
-      style={{
-        position: "absolute",
-        inset: 0,
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 0,
-      }}
-    >
-      <img
-        src="/venue.png"
-        alt="venue"
-        style={{
-          width: "90%",
-          height: "100%",
-          objectFit: "cover",
-          borderRadius: "6px",
-        }}
-      />
-    </div>
-  );
-}
-
-/* ── Monogram with uppercase A & S using Dancing Script ── */
-function Monogram({ size = 78, color = "#b8860b" }) {
-  const letterStyle = {
-    fontFamily: "'Dancing Script', cursive",
-    fontSize: size,
-    color,
-    lineHeight: 1,
-    display: "inline-block",
-    textTransform: "uppercase",
-    fontWeight: 700,
+/* ── Boat scene, framed in an arched window ── */
+function BoatScene({ diff }) {
+  const [preview, setPreview] = useState(false);
+  const gone = diff <= 0 || preview;
+  const replay = () => {
+    if (diff <= 0) return;
+    setPreview(true);
+    setTimeout(() => setPreview(false), 9000);
   };
-  const ampStyle = {
-    fontFamily: "'Dancing Script', cursive",
-    fontSize: size * 0.55,
-    color,
-    lineHeight: 1,
-    display: "inline-block",
-    verticalAlign: "middle",
-    margin: "0 6px",
-    fontWeight: 500,
-  };
-
+  const wave = "M-60 0 q15 -6 30 0 t30 0 t30 0 t30 0 t30 0 t30 0 t30 0 t30 0 t30 0 t30 0 t30 0 t30 0 t30 0 t30 0";
   return (
-    <div
-      style={{
-        lineHeight: 1,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 0,
-        textShadow: "1px 2px 0 rgba(180,120,0,0.15)",
-      }}
-    >
-      <span style={letterStyle}>A</span>
-      <span style={ampStyle}>&amp;</span>
-      <span style={letterStyle}>S</span>
+    <div>
+      <div style={{ borderRadius: "999px 999px 14px 14px", overflow: "hidden", border: `4px solid ${C.night}`, boxShadow: `0 0 0 3px ${C.amber}` }}>
+        <svg viewBox="0 0 360 250" style={{ width: "100%", display: "block" }} role="img" aria-label="The Liberty boat docked on the Nile, about to set sail">
+          <defs>
+            <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#2b1d3f" /><stop offset="0.55" stopColor="#a8506f" /><stop offset="1" stopColor="#f0b27a" />
+            </linearGradient>
+            <linearGradient id="wtr" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#3b2a55" /><stop offset="1" stopColor="#1a1230" />
+            </linearGradient>
+          </defs>
+          <rect width="360" height="250" fill="url(#sky)" />
+          <circle cx="290" cy="130" r="22" fill="#ffe2b0" opacity="0.9" />
+          <g fill="#fff" opacity="0.8"><circle cx="60" cy="40" r="1.2" /><circle cx="130" cy="70" r="1" /><circle cx="200" cy="30" r="1.3" /><circle cx="250" cy="60" r="1" /></g>
+          <rect y="160" width="360" height="90" fill="url(#wtr)" />
+          <rect x="280" y="162" width="16" height="3" rx="1.5" fill="#ffe2b0" opacity="0.5" />
+          <rect x="0" y="154" width="48" height="8" fill="#5a3a22" /><rect x="8" y="162" width="4" height="26" fill="#3d2616" /><rect x="34" y="162" width="4" height="26" fill="#3d2616" />
+          <rect x="14" y="124" width="3" height="30" fill="#3d2616" /><circle cx="15.5" cy="121" r="4" fill="#ffd98a" />
+          <g style={{ transform: gone ? "translateX(420px)" : "none", transition: gone ? "transform 8s cubic-bezier(.5,0,.9,.6)" : "transform .01s" }}>
+            <g className="bob">
+              <path d="M58 156 H236 L220 180 H76Z" fill={C.pearl} />
+              <path d="M62 162 H232" stroke={C.amber} strokeWidth="1.5" />
+              <text x="147" y="175" textAnchor="middle" fontFamily="'Fraunces', serif" fontStyle="italic" fontSize="12" fill={C.night}>Liberty</text>
+              <rect x="74" y="138" width="140" height="18" fill="#fffaf0" />
+              {[84, 104, 124, 144, 164, 184].map((x) => <rect key={x} x={x} y="142" width="9" height="9" rx="4.5" fill="#ffd98a" />)}
+              <rect x="96" y="120" width="96" height="18" fill="#fffaf0" />
+              {[106, 124, 142, 160].map((x) => <rect key={x} x={x} y="124" width="9" height="9" rx="4.5" fill="#ffd98a" />)}
+              <rect x="90" y="116" width="108" height="4" fill={C.amber} />
+              <rect x="143" y="96" width="1.5" height="20" fill={C.night} /><path d="M144.5 96 L166 101 L144.5 106Z" fill={C.coral} />
+              <path d="M74 134 Q147 150 216 134" stroke="#ffe2b0" strokeWidth="0.8" fill="none" opacity="0.7" />
+              {[0, 1, 2, 3, 4, 5, 6].map((i) => <circle key={i} className="bulb" style={{ animationDelay: `${i * 0.25}s` }} cx={80 + i * 22} cy={138 + Math.sin((i / 6) * Math.PI) * 6} r="1.8" fill="#ffe2b0" />)}
+              <path d="M48 154 L60 156" stroke="#5a3a22" strokeWidth="3" strokeLinecap="round" opacity={gone ? 0 : 1} />
+            </g>
+          </g>
+          <g className="wave" opacity="0.5" transform="translate(0 182)"><path d={wave} stroke="#d8b4e8" strokeWidth="1.2" fill="none" /></g>
+          <g className="wave slow" opacity="0.35" transform="translate(0 205)"><path d={wave} stroke="#d8b4e8" strokeWidth="1.2" fill="none" /></g>
+          <g className="wave" opacity="0.25" transform="translate(0 228)"><path d={wave} stroke="#d8b4e8" strokeWidth="1.2" fill="none" /></g>
+        </svg>
+      </div>
+      <div style={{ marginTop: 16, fontFamily: sans, fontSize: 14, opacity: 0.8 }}>
+        {diff <= 0 ? "Liberty has set sail." : "The gangway is open until 8:30 PM."}
+      </div>
+      {diff > 0 && (
+        <button className="ghost" onClick={replay} disabled={preview} style={{
+          marginTop: 12, padding: "10px 22px", borderRadius: 40, border: `1.5px solid ${C.night}`, background: "transparent",
+          color: C.night, fontFamily: sans, fontWeight: 500, fontSize: 14, cursor: preview ? "default" : "pointer", opacity: preview ? 0.5 : 1,
+        }}>
+          {preview ? "Sailing…" : "See what happens if you're late"}
+        </button>
+      )}
     </div>
   );
 }
 
-/* ── Main component ── */
-export default function InvitationPage() {
-  const [footerRef, footerVisible] = useReveal();
+/* ── Boarding pass ── */
+function Ticket() {
+  const notch = { position: "absolute", width: 26, height: 26, borderRadius: "50%", background: C.deep, top: -13 };
+  const lab = { fontFamily: sans, fontSize: 11, color: "#6b7a8c" };
+  const val = { fontFamily: serif, fontSize: 20, color: C.night, marginTop: 2 };
+  return (
+    <div style={{ maxWidth: 360, margin: "0 auto", background: C.pearl, borderRadius: 18, textAlign: "left", color: C.night, overflow: "hidden", boxShadow: "0 18px 40px rgba(0,0,0,0.35)" }}>
+      <div style={{ background: C.coral, padding: "10px 22px", fontFamily: sans, fontWeight: 600, fontSize: 13, display: "flex", justifyContent: "space-between", color: C.night }}>
+        <span>Boarding pass</span><span>Liberty · Nile</span>
+      </div>
+      <div style={{ padding: "22px 22px 24px" }}>
+        <div style={lab}>Passengers</div>
+        <div style={{ fontFamily: serif, fontStyle: "italic", fontSize: 26 }}>You &amp; your guest</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18, marginTop: 20 }}>
+          <div><div style={lab}>Date</div><div style={val}>Fri 25 Dec</div></div>
+          <div><div style={lab}>Year</div><div style={val}>2026</div></div>
+          <div><div style={lab}>Boarding</div><div style={val}>8:00 PM</div></div>
+          <div><div style={lab}>Departs</div><div style={{ ...val, color: "#b3364f" }}>8:30 PM sharp</div></div>
+        </div>
+        <div style={{ marginTop: 20 }}><div style={lab}>Port</div><div style={val}>The Nile Anchor, Cairo</div></div>
+      </div>
+      <div style={{ position: "relative", borderTop: "2px dashed rgba(12,27,51,0.25)" }}>
+        <span style={{ ...notch, left: -13 }} /><span style={{ ...notch, right: -13 }} />
+        <div style={{ padding: "18px 22px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14 }}>
+          <div style={{ fontFamily: sans, fontSize: 12, lineHeight: 1.5, maxWidth: 150 }}>The boat leaves on time. Late guests wave from the dock.</div>
+          <div style={{ width: 110, height: 40, background: "repeating-linear-gradient(90deg,#0c1b33 0 2px,transparent 2px 4px,#0c1b33 4px 5px,transparent 5px 8px,#0c1b33 8px 11px,transparent 11px 13px)" }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Voyage log ── */
+function Voyage() {
+  return (
+    <div style={{ maxWidth: 340, margin: "10px auto 0", textAlign: "left" }}>
+      {SCHEDULE.map((it, i) => (
+        <div key={it.label} style={{ display: "flex", gap: 16 }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <div style={{
+              width: 20, height: 20, borderRadius: "50%", border: `2px solid ${C.amber}`, marginTop: 2,
+              background: it.key ? C.amber : "transparent", boxShadow: it.key ? "0 0 14px rgba(255,180,84,0.7)" : "none",
+            }} />
+            {i < SCHEDULE.length - 1 && <div style={{ flex: 1, borderLeft: "2px dashed rgba(255,180,84,0.4)", minHeight: 42 }} />}
+          </div>
+          <div style={{ paddingBottom: 18 }}>
+            <div style={{ fontFamily: sans, fontSize: 13, color: C.amber, fontWeight: 600 }}>{it.time}</div>
+            <div style={{ fontFamily: serif, fontSize: 20, marginTop: 1 }}>{it.label}</div>
+            <div style={{ fontFamily: sans, fontSize: 13, opacity: 0.7, marginTop: 2 }}>{it.note}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ── Page ── */
+export default function WeddingInvitation() {
+  const diff = useTimeLeft();
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    document.body.style.overflow = open ? "" : "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
 
   return (
     <>
-      <link rel="stylesheet" href={GOOGLE_FONTS} />
+      <link rel="stylesheet" href={FONTS} />
       <style>{`
         * { box-sizing: border-box; }
-        html, body { margin: 0; padding: 0; overflow-x: hidden; }
-        .rsvp-btn:hover { background: rgba(201,168,76,0.08) !important; }
+        html, body { margin: 0; padding: 0; overflow-x: hidden; background: ${C.night}; }
+        .sway { animation: sway 5s ease-in-out infinite; transform-origin: 120px 230px; }
+        @keyframes sway { 0%,100% { transform: rotate(-0.8deg); } 50% { transform: rotate(0.8deg); } }
+        .star { width: 3px; height: 3px; border-radius: 50%; background: #fff; animation: tw 2.4s ease-in-out infinite; }
+        @keyframes tw { 0%,100% { opacity: .9; } 50% { opacity: .2; } }
+        .lantern { position: absolute; bottom: -30px; width: 14px; height: 20px; border-radius: 6px 6px 8px 8px;
+          background: ${C.amber}; box-shadow: 0 0 18px 6px rgba(255,180,84,.55); animation: rise 11s linear infinite; opacity: 0; }
+        @keyframes rise { 0% { transform: translateY(0); opacity: 0; } 10% { opacity: .9; } 100% { transform: translateY(-105vh) translateX(18px); opacity: 0; } }
+        .bob { animation: bob 4s ease-in-out infinite; transform-origin: 147px 180px; }
+        @keyframes bob { 0%,100% { transform: translateY(0) rotate(-.4deg); } 50% { transform: translateY(2.5px) rotate(.4deg); } }
+        .wave { animation: drift 7s linear infinite; } .wave.slow { animation-duration: 11s; animation-direction: reverse; }
+        @keyframes drift { to { margin-left: 60px; } }
+        .bulb { animation: tw 2s ease-in-out infinite; }
+        .names-in { animation: rise-in 1.4s .9s both cubic-bezier(.2,.7,.2,1); }
+        @keyframes rise-in { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+        .cta { transition: transform .2s; } .cta:hover { transform: scale(1.04); }
+        .ghost:hover:not(:disabled) { background: rgba(12,27,51,.08) !important; }
+        button:focus-visible, a:focus-visible { outline: 3px solid ${C.coral}; outline-offset: 3px; }
+        @media (prefers-reduced-motion: reduce) { .sway,.bob,.wave,.bulb,.star,.lantern,.names-in { animation: none; } .lantern { display: none; } .names-in { opacity: 1; } }
       `}</style>
 
-      <div
-        style={{
-          width: "100%",
-          background: "#fff",
-          fontFamily: "'Cormorant Garamond', serif",
-        }}
-      >
-        <div
-          style={{
-            width: "100%",
-            maxWidth: 520,
-            margin: "0 auto",
-            background: "#fff",
-            paddingBottom: 60,
-          }}
-        >
-          {/* ── HERO ── */}
-          <div style={s.hero}>
-            {[
-              { top: 18, left: 18, borderWidth: "1px 0 0 1px" },
-              { top: 18, right: 18, borderWidth: "1px 1px 0 0" },
-              { bottom: 18, left: 18, borderWidth: "0 0 1px 1px" },
-              { bottom: 18, right: 18, borderWidth: "0 1px 1px 0" },
-            ].map((style, i) => (
-              <div
-                key={i}
-                style={{
-                  position: "absolute",
-                  width: 36,
-                  height: 36,
-                  borderColor: "#c9a84c",
-                  borderStyle: "solid",
-                  zIndex: 3,
-                  ...style,
-                }}
-              />
-            ))}
-            <GardenBackground />
-            <div
-              style={{
-                position: "absolute",
-                inset: 0,
-                background: "rgba(255,252,245,0.62)",
-                zIndex: 1,
-              }}
-            />
-            <div
-              style={{
-                position: "relative",
-                zIndex: 2,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                width: "100%",
-              }}
-            >
-              {/* Uppercase A & S monogram */}
-              <div style={{ marginBottom: 4 }}>
-                <Monogram size={78} color="#b8860b" />
-              </div>
-              <div style={s.monoLine} />
-              <div style={s.heroNames}>
-                Abdallah
-                <span style={s.heroAmp}>&amp;</span>
-                Sohaila
-              </div>
-              <div style={s.heroDiv} />
-              <div style={s.heroTagline}>
-                request the pleasure of your company
-              </div>
+      <Intro open={open} onOpen={() => setOpen(true)} />
+
+      <div style={{ maxWidth: 520, margin: "0 auto", background: C.night }}>
+        {/* HERO + COUNTDOWN */}
+        <Block bg={C.night} color={C.pearl} pad="70px 26px 56px">
+          <div className={open ? "names-in" : ""} style={{ opacity: open ? undefined : 0 }}>
+            <div style={{ fontFamily: sans, fontSize: 13, letterSpacing: 1, opacity: 0.75 }}>Friday · 25 December 2026 · 8:30 PM</div>
+            <div style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 300, fontSize: 54, lineHeight: 1.05, marginTop: 16 }}>
+              Abdallah<br /><span style={{ color: C.coral, fontSize: 36 }}>&amp;</span><br />Sohaila
             </div>
+            <div style={{ fontFamily: arabic, fontSize: 28, color: C.amber, marginTop: 10 }}></div>
+            <div style={{ fontFamily: sans, fontSize: 15, opacity: 0.85, marginTop: 22 }}>Liberty leaves the dock in</div>
+            <Portholes diff={diff} />
           </div>
+        </Block>
 
-          {/* ── 1. DATE + COUNTDOWN — most important, sets the event ── */}
-          <Section>
-            <span style={t.ornament}>✦ &nbsp; ✦ &nbsp; ✦</span>
-            <div style={t.dateDay}>Wednesday</div>
-            <div style={t.dateNum}>10</div>
-            <div style={t.dateMonth}>June</div>
-            <div style={t.dateYear}>2026</div>
-            <div style={t.dateNote}>
-              We kindly invite you to join us early
-              <br />
-              to enjoy every beautiful moment together.
-            </div>
-            <Countdown />
-          </Section>
+        <Wave from={C.night} to={C.pearl} />
 
-          <Divider />
+        {/* BOAT */}
+        <Block bg={C.pearl} color={C.night} pad="28px 26px 56px">
+          <h2 style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 500, fontSize: 34, margin: "0 0 10px" }}>The boat will not wait</h2>
+          <p style={{ fontFamily: sans, fontSize: 15, lineHeight: 1.7, maxWidth: 340, margin: "0 auto 24px" }}>
+            Our wedding is on a boat, and it leaves the dock at exactly <b>8:30 PM</b>. Please be on board by <b>8:00 PM</b> so you don't miss the start.
+          </p>
+          <BoatScene diff={diff} />
+        </Block>
 
-          {/* ── 2. ENTRANCE TIME — practical info right after the date ── */}
-          <EntranceTimeSection />
+        <Wave from={C.pearl} to={C.deep} />
 
-          <Divider />
+        {/* BOARDING PASS */}
+        <Block bg={C.deep} color={C.pearl} pad="24px 22px 56px">
+          <h2 style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 500, fontSize: 32, margin: "0 0 22px" }}>Your boarding pass</h2>
+          <Ticket />
+        </Block>
 
-          {/* ── 3. VENUE + MAP — where to go ── */}
-          <Section>
-            <span style={t.ornament}>✦</span>
-            <div style={t.secTitle}>The celebration will be held at</div>
-            <div style={t.venueName}>Rustic Garden Venue</div>
-            <div style={t.venueAddr}>Cairo, Egypt</div>
-            <div style={t.mapFrame}>
-              <iframe
-                title="Rustic Garden Venue"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3447.32708323104!2d31.532122574432236!3d30.227747809864614!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x145805005be4bc6f%3A0xe260fc319e872e15!2srustic%20Garden!5e0!3m2!1sen!2seg!4v1776070616519!5m2!1sen!2seg"
-                style={{ width: "100%", height: "100%", border: "none" }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
-            </div>
-            <a
-              href="https://maps.app.goo.gl/GnY9ujeKYXnW3rcN9"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={t.dirLink}
-            >
-              Open in Google Maps
-            </a>
-          </Section>
+        <Wave from={C.deep} to={C.night} />
 
-          <Divider />
+        {/* VOYAGE LOG */}
+        <Block bg={C.night} color={C.pearl} pad="24px 26px 56px">
+          <h2 style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 500, fontSize: 32, margin: "0 0 22px" }}>Our evening</h2>
+          <Voyage />
+        </Block>
 
-          {/* ── 4. RSVP — action item ── */}
-          <Section>
-            <span style={t.ornament}>✦</span>
-            <div style={t.rsvpTitle}>Will you join us?</div>
-            <div style={t.rsvpSub}>
-              Kindly confirm your attendance by reaching out to us
-            </div>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 12,
-                alignItems: "center",
-              }}
-            >
-              <a
-                href="https://chat.whatsapp.com/He9otTZwvwkJzBne54H6xc"
-                style={{
-                  padding: "12px 24px",
-                  borderRadius: "30px",
-                  background: "#111",
-                  color: "#fff",
-                  textDecoration: "none",
-                  fontSize: "16px",
-                  fontWeight: "500",
-                  letterSpacing: "1px",
-                  display: "inline-block",
-                  transition: "0.3s ease",
-                }}
-                onMouseOver={(e) => (e.target.style.opacity = 0.8)}
-                onMouseOut={(e) => (e.target.style.opacity = 1)}
-              >
-                Join Our WhatsApp Group
-              </a>
-            </div>
-          </Section>
+        <Wave from={C.night} to={C.pearl} />
 
-          <Divider />
+        {/* VENUE + RSVP */}
+        <Block bg={C.pearl} color={C.night} pad="24px 26px 56px">
+          <div style={{ fontFamily: sans, fontSize: 13, opacity: 0.7 }}>Find us at</div>
+          <div style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 500, fontSize: 40, margin: "4px 0" }}>Liberty</div>
+          <div style={{ fontFamily: sans, fontSize: 15 }}>The Nile Anchor, Cairo</div>
+          <a href={MAPS_LINK} target="_blank" rel="noopener noreferrer" style={{
+            display: "inline-block", marginTop: 16, padding: "11px 24px", borderRadius: 40, border: `1.5px solid ${C.night}`,
+            color: C.night, textDecoration: "none", fontFamily: sans, fontWeight: 500, fontSize: 14,
+          }}>Open in Google Maps</a>
 
-          {/* ── 5. PINK PALETTE — dress code / aesthetic ── */}
-          <PinkPalette />
+          <div style={{ width: 40, height: 3, borderRadius: 2, background: C.coral, margin: "40px auto 28px" }} />
 
-          <Divider />
+          <h2 style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 500, fontSize: 32, margin: "0 0 8px" }}>Will you join us?</h2>
+          <p style={{ fontFamily: sans, fontSize: 14, opacity: 0.75, margin: "0 0 20px" }}>Confirm your attendance so we can save you a seat on board.</p>
+          <a href={WHATSAPP_LINK} style={{
+            display: "inline-block", padding: "13px 28px", borderRadius: 40, background: C.night, color: C.pearl,
+            textDecoration: "none", fontFamily: sans, fontWeight: 600, fontSize: 15,
+          }}>Join our WhatsApp group</a>
+        </Block>
 
-          {/* ── 6. MESSAGE — emotional close ── */}
-          <Section>
-            <span style={t.ornament}>✦</span>
-            <div style={t.msgTitle}>A note from our hearts</div>
-            <div style={t.msgBody}>
-              To our dearest family and friends,
-              <br />
-              <br />
-              We are overflowing with joy as we prepare to share this milestone
-              with the people we love most. This engagement is not simply a
-              promise between two hearts — it is a moment we have dreamed of
-              celebrating surrounded by all of you.
-              <br />
-              <br />
-              Your presence would mean everything to us. We hope you feel the
-              warmth of our love the moment you arrive, and we hope this evening
-              becomes a memory you carry with you just as tenderly as we will.
-              <br />
-              <br />
-              We are so grateful for the love and support that has always
-              surrounded us, and we truly cannot imagine this moment without you
-              by our side.
-              <br />
-              <br />
-              Please come, celebrate, and let us create something beautiful
-              together.
-            </div>
-            <div style={t.msgSig}>
-              With all our love,
-              <br />
-              Abdallah &amp; Sohaila
-            </div>
-            <div style={t.msgSigSub}>We cannot wait to see you</div>
-          </Section>
+        <Wave from={C.pearl} to={C.deep} />
 
-          <Divider />
-
-          {/* ── FOOTER ── */}
-          <div
-            ref={footerRef}
-            style={{
-              textAlign: "center",
-              padding: "22px 24px 48px",
-              background: "#fff",
-              opacity: footerVisible ? 1 : 0,
-              transform: footerVisible ? "translateY(0)" : "translateY(18px)",
-              transition: "opacity 0.85s ease, transform 0.85s ease",
-            }}
-          >
-            <Monogram size={72} color="#b8860b" />
-            <div
-              style={{
-                fontSize: 11,
-                letterSpacing: 4,
-                color: "#c9a84c",
-                opacity: 0.55,
-                textTransform: "uppercase",
-                marginTop: 8,
-              }}
-            >
-              10 · 06 · 2026
-            </div>
-          </div>
-        </div>
+        {/* NOTE + FOOTER */}
+        <Block bg={C.deep} color={C.pearl} pad="24px 30px 64px">
+          <h2 style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 500, fontSize: 32, margin: "0 0 18px" }}>A note from us</h2>
+          <p style={{ fontFamily: serif, fontWeight: 300, fontSize: 17, lineHeight: 1.85, margin: 0, opacity: 0.92 }}>
+            To our dearest family and friends,<br /><br />
+            After the engagement, we could not wait for this night. We want to begin our life together surrounded by the people who made us who we are, with the Nile beneath us and all of you beside us.<br /><br />
+            Come early, dress for a night on the water, and help us make a memory we will never forget.
+          </p>
+          <div style={{ fontFamily: serif, fontStyle: "italic", fontSize: 26, color: C.amber, marginTop: 28 }}>With all our love,<br />Abdallah &amp; Sohaila</div>
+          <div style={{ fontFamily: sans, fontSize: 12, opacity: 0.6, marginTop: 28 }}>25 · 12 · 2026</div>
+        </Block>
       </div>
     </>
   );
 }
-
-/* ── Styles ── */
-const s = {
-  hero: {
-    width: "100%",
-    minHeight: "80vh",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "48px 28px",
-    position: "relative",
-    overflow: "hidden",
-    background: "#fdf8ef",
-  },
-  monoLine: {
-    width: 70,
-    height: 0.5,
-    background: "#c9a84c",
-    opacity: 0.6,
-    margin: "6px auto 28px",
-  },
-  heroNames: {
-    fontFamily: "'Dancing Script', cursive",
-    fontSize: 50,
-    color: "#2a1a06",
-    lineHeight: 1.2,
-    textAlign: "center",
-  },
-  heroAmp: {
-    fontFamily: "'Dancing Script', cursive",
-    fontSize: 34,
-    color: "#b8860b",
-    display: "block",
-    margin: "2px 0",
-  },
-  heroDiv: {
-    width: 55,
-    height: 0.5,
-    background: "#c9a84c",
-    opacity: 0.5,
-    margin: "18px auto",
-  },
-  heroTagline: {
-    fontFamily: "'Cormorant Garamond', serif",
-    fontStyle: "italic",
-    fontSize: 15,
-    color: "#6a5030",
-    letterSpacing: 1,
-    textAlign: "center",
-  },
-};
-
-const t = {
-  ornament: {
-    color: "#c9a84c",
-    fontSize: 13,
-    letterSpacing: 6,
-    marginBottom: 18,
-    display: "block",
-  },
-  secTitle: {
-    fontFamily: "'Playfair Display', serif",
-    fontSize: 12,
-    letterSpacing: 6,
-    color: "#8a7050",
-    textTransform: "uppercase",
-    marginBottom: 22,
-    fontWeight: 400,
-    fontStyle: "italic",
-  },
-  dateDay: {
-    fontFamily: "'Dancing Script', cursive",
-    fontSize: 30,
-    color: "#8a7050",
-    marginBottom: 2,
-  },
-  dateNum: {
-    fontFamily: "'Playfair Display', serif",
-    fontSize: 84,
-    color: "#c9a84c",
-    lineHeight: 1,
-    fontWeight: 400,
-  },
-  dateMonth: {
-    fontFamily: "'Playfair Display', serif",
-    fontSize: 22,
-    color: "#2a1a06",
-    letterSpacing: 8,
-    textTransform: "uppercase",
-    marginBottom: 4,
-  },
-  dateYear: {
-    fontSize: 14,
-    letterSpacing: 4,
-    color: "#8a7050",
-    fontStyle: "italic",
-  },
-  dateNote: {
-    marginTop: 18,
-    fontSize: 15,
-    color: "#8a7050",
-    fontStyle: "italic",
-    lineHeight: 1.9,
-  },
-  venueName: {
-    fontFamily: "'Dancing Script', cursive",
-    fontSize: 38,
-    color: "#2a1a06",
-    marginBottom: 6,
-  },
-  venueAddr: {
-    fontSize: 13,
-    letterSpacing: 2,
-    color: "#8a7050",
-    textTransform: "uppercase",
-    marginBottom: 18,
-    fontStyle: "italic",
-  },
-  mapFrame: {
-    width: "100%",
-    height: 230,
-    border: "0.5px solid rgba(201,168,76,0.4)",
-    borderRadius: 2,
-    overflow: "hidden",
-    marginTop: 10,
-  },
-  dirLink: {
-    display: "inline-block",
-    marginTop: 13,
-    fontSize: 12,
-    letterSpacing: 3,
-    color: "#c9a84c",
-    textTransform: "uppercase",
-    textDecoration: "none",
-    borderBottom: "0.5px solid rgba(201,168,76,0.4)",
-    paddingBottom: 2,
-  },
-  rsvpTitle: {
-    fontFamily: "'Dancing Script', cursive",
-    fontSize: 38,
-    color: "#2a1a06",
-    marginBottom: 8,
-  },
-  rsvpSub: {
-    fontSize: 14,
-    color: "#8a7050",
-    fontStyle: "italic",
-    marginBottom: 22,
-  },
-  rsvpBtn: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 8,
-    padding: "13px 30px",
-    border: "1px solid #c9a84c",
-    color: "#2a1a06",
-    fontFamily: "'Cormorant Garamond', serif",
-    fontSize: 14,
-    letterSpacing: 2,
-    cursor: "pointer",
-    background: "transparent",
-    borderRadius: 1,
-    transition: "background 0.3s",
-    textDecoration: "none",
-    fontStyle: "italic",
-  },
-  msgTitle: {
-    fontFamily: "'Dancing Script', cursive",
-    fontSize: 42,
-    color: "#2a1a06",
-    marginBottom: 22,
-  },
-  msgBody: {
-    fontSize: 16,
-    lineHeight: 2,
-    color: "#5a4030",
-    fontStyle: "italic",
-    textAlign: "center",
-  },
-  msgSig: {
-    marginTop: 30,
-    fontFamily: "'Dancing Script', cursive",
-    fontSize: 40,
-    color: "#c9a84c",
-    lineHeight: 1.3,
-  },
-  msgSigSub: {
-    fontSize: 11,
-    letterSpacing: 3,
-    color: "#8a7050",
-    textTransform: "uppercase",
-    marginTop: 6,
-    fontStyle: "italic",
-  },
-};
