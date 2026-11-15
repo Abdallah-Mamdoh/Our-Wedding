@@ -22,18 +22,18 @@ const SCHEDULE = [
   },
   {
     time: "9:00 PM",
-    label: "Zaffa & first dance",
+    label: "Entrance & first dance",
     note: "Our first moments as husband and wife",
   },
   {
     time: "10:00 PM",
     label: "Dinner on the water",
-    note: "Feast, music & memories",
+    note: "Music & memories",
   },
   {
     time: "11:30 PM",
     label: "Back at the dock",
-    note: "Photos, photobooth & guestbook",
+    // note: "Photos, photobooth & guestbook",
   },
 ];
 
@@ -389,7 +389,7 @@ function BoatScene({ diff }) {
           viewBox="0 0 360 250"
           style={{ width: "100%", display: "block" }}
           role="img"
-          aria-label="The Liberty boat docked on the Nile, about to set sail"
+          aria-label="The Liberty yacht docked on the Nile, about to set sail"
         >
           <defs>
             <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
@@ -645,7 +645,7 @@ function Ticket() {
               maxWidth: 150,
             }}
           >
-            The boat leaves on time. Late guests wave from the dock.
+            The yacht leaves on time. Late guests wave from the dock.
           </div>
           <div
             style={{
@@ -837,7 +837,7 @@ export default function WeddingInvitation() {
               margin: "0 0 10px",
             }}
           >
-            The boat will not wait
+            The yacht will not wait
           </h2>
           <p
             style={{
@@ -848,7 +848,7 @@ export default function WeddingInvitation() {
               margin: "0 auto 24px",
             }}
           >
-            Our wedding is on a boat, and it leaves the dock at exactly{" "}
+            Our wedding is on a yacht, and it leaves the dock at exactly{" "}
             <b>8:30 PM</b>. Please be on board by <b>8:00 PM</b> so you don't
             miss the start.
           </p>
